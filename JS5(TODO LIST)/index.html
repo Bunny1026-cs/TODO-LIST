@@ -1,31 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flexbox Example</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>To-Do List</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #153677, #4e085f);;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .content {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: calc(100% - 80px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px;
+            background: orange;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        li.done p {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        .delete {
+            background: none;
+            border: none;
+            color: red;
+            cursor: pointer;
+        }
+    </style>
 </head>
 
 <body>
     <div class="content">
-       <div class="head">
-        <h1>To-Do List </h1>
-        <img src="premium_photo-1681487870238-4a2dfddc6bcb.jpeg" class="image">
-       </div>
-       <div class="search">
-        <input type="text" placeholder=" add task...." autofocus>
-        <button class="add">add</button>
-     </div> 
-     <div class="tasks">
-        <ul id="tasks">
-           
-        </ul>
-     </div>
-</div>
+        <div class="header">
+            <h1>To-Do List</h1>
+        </div>
+        <div class="input-group">
+            <input type="text" placeholder="Add a task..." id="taskInput">
+            <button id="addTask">Add</button>
+        </div>
+        <ul id="taskList"></ul>
+    </div>
+
+    <script>
+        const taskInput = document.getElementById('taskInput');
+        const addTaskButton = document.getElementById('addTask');
+        const taskList = document.getElementById('taskList');
+
+        function loadTasks() {
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks.forEach(task => addTask(task.text, task.done));
+        }
+
+        function saveTasks() {
+            const tasks = [];
+            document.querySelectorAll('li').forEach(li => {
+                tasks.push({
+                    text: li.querySelector('p').innerText,
+                    done: li.classList.contains('done')
+                });
+            });
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        function addTask(text, done = false) {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <p>${text}</p>
+                <button class="delete">&times;</button>
+            `;
+
+            if (done) li.classList.add('done');
+
+            li.querySelector('p').addEventListener('click', () => {
+                li.classList.toggle('done');
+                saveTasks();
+            });
+
+            li.querySelector('.delete').addEventListener('click', () => {
+                li.remove();
+                saveTasks();
+            });
+
+            taskList.appendChild(li);
+            saveTasks();
+        }
+
+        addTaskButton.addEventListener('click', () => {
+            const taskText = taskInput.value.trim();
+            if (taskText) {
+                addTask(taskText);
+                taskInput.value = '';
+            } else {
+                alert('Please enter a task.');
+            }
+        });
+
+        loadTasks();
+    </script>
 </body>
-<script src="script.js"></script>
 
 </html>
